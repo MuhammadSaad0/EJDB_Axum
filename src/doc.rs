@@ -84,4 +84,32 @@ pub async fn delete_doc(Json(data): Json<DeleteDocInput>) -> Json<String> {
     Json("Document dropped!".to_owned())
 }
 
-pub async fn insert_many_fields_in_doc() {}
+// Json structure should be like this:
+// {
+//     "collection_name": "Users",
+//     "doc_id": "65019caf8526205200000000",
+//     "fields_to_insert": {
+//       "Height": 185,
+//       "Color": "Brown",
+//       "Hand": "Right"
+//     }
+
+//   }
+#[debug_handler]
+pub async fn insert_many_fields_in_doc(Json(data): Json<Value>) {
+    let db = Database::open("ejdb_axum.db").unwrap();
+    let coll = db
+        .collection(data["collection_name"].as_str().unwrap())
+        .unwrap();
+    let fields_to_insert = bson! {data["fields_to_insert"].clone()};
+
+    let _result = coll
+        .query(
+            Q.field("_id")
+                .eq(data["doc_id"].clone())
+                .set_many(fields_to_insert.as_document().unwrap().clone()),
+            QH.empty(),
+        )
+        .update()
+        .unwrap();
+}

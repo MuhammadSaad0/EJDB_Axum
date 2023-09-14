@@ -6,7 +6,10 @@ use axum::{
     Router,
 };
 use collection::{create_collection, delete_collection, get_all_docs_data_from_collection};
-use doc::{delete_doc, get_all_from_doc, insert_field_in_doc, insert_into_collection};
+use doc::{
+    delete_doc, get_all_from_doc, insert_field_in_doc, insert_into_collection,
+    insert_many_fields_in_doc,
+};
 use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
@@ -27,6 +30,7 @@ async fn main() {
             "/get_all_docs_in_collection",
             get(get_all_docs_data_from_collection),
         )
+        .route("/insert_many_fields", post(insert_many_fields_in_doc))
         .layer(cors);
 
     axum::Server::bind(&"0.0.0.0:3690".parse().unwrap())
